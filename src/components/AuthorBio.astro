@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+type Props = CollectionEntry<'authors'>['data'];
+
+const { name, bio, avatar, socials } = Astro.props;
+---
+
+<section class="author-bio" aria-labelledby="author-heading">
+	<Image class="avatar" width={96} height={96} src={avatar} alt={`${name}'s profile avatar`} />
+	<div class="author-details">
+		<p class="eyebrow">About the author</p>
+		<h2 id="author-heading">{name}</h2>
+		<p>{bio}</p>
+		<ul class="social-links">
+			{socials.map((social) => (
+				<li><a href={social.url} rel="me">{social.platform}</a></li>
+			))}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.author-bio {
+		display: flex;
+		gap: 1.25rem;
+		align-items: flex-start;
+		margin-top: 3rem;
+		padding-top: 2rem;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+	.avatar {
+		flex: 0 0 auto;
+		width: 96px;
+		height: 96px;
+		border-radius: 50%;
+		object-fit: cover;
+	}
+	.author-details {
+		flex: 1;
+	}
+	.eyebrow {
+		margin: 0 0 0.25rem;
+		color: rgb(var(--gray));
+		font-size: 0.8rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	h2 {
+		margin: 0 0 0.5rem;
+		color: rgb(var(--black));
+	}
+	.author-details > p:not(.eyebrow) {
+		margin: 0;
+	}
+	.social-links {
+		display: flex;
+		gap: 1rem;
+		margin: 0.75rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	@media (max-width: 480px) {
+		.author-bio {
+			flex-direction: column;
+		}
+	}
+</style>
