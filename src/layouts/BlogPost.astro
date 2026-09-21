@@ -15,16 +15,6 @@ const { title, description, pubDate, updatedDate, heroImage, author } = Astro.pr
 ---
 
 <html lang="en">
-					{
-						author && (
-							<AuthorBio
-								name={author.name}
-								bio={author.bio}
-								avatar={author.avatar}
-								socials={author.socials}
-							/>
-						)
-					}
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
@@ -93,6 +83,14 @@ const { title, description, pubDate, updatedDate, heroImage, author } = Astro.pr
 					<slot />
 				</div>
 			</article>
+			{author && (
+				<AuthorBio
+					name={author.name}
+					bio={author.bio}
+					avatar={author.avatar}
+					socials={author.socials}
+				/>
+			)}
 		</main>
 		<Footer />
 	</body>
