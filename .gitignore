@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# AI assistant working docs — scratch notes, not part of the graded repo
+claude_doc/

@@ -140,6 +140,23 @@ it's needed", say that, so we can cut it.
 
 ---
 
+## Where your written output goes
+
+Any file you write that is **documentation rather than code** — assessments, findings,
+analysis, notes, design write-ups — goes in `claude_doc/` at the repo root. Create the
+folder if it isn't there.
+
+`claude_doc/` is gitignored on purpose. It's my working scratch space, not part of the
+graded repo, so nothing in it gets committed or pushed. Keeping AI-written prose out of
+the tracked history is deliberate — the module has an academic-integrity rule about
+AI-generated pastes, and this keeps the line clean.
+
+This applies to **every agent and every session**, not just the one I happened to ask.
+
+Code, tests, config and anything the build needs still go in their normal locations.
+
+---
+
 ## Code style
 
 - Match the existing patterns in the repo. Look before you write.
