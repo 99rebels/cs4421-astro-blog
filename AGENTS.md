@@ -117,7 +117,7 @@ defend under time pressure, and it makes pull requests harder for classmates to 
 4. **Write tests with the code**, including the edge cases named in the ticket. Tests are
    Vitest.
 5. **Run the checks** and report the real output: `npm run check`, `npm run lint`,
-   `npm test`. Don't claim something passes without running it.
+   `npm run test:unit`. Don't claim something passes without running it.
 6. **Explain the change** (see below).
 7. **Stop.** Leave it uncommitted. I review the diff, commit, push and open the PR.
 
