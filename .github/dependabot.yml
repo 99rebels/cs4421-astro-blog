@@ -1,11 +1,32 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot version updates.
+# Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+
+    # Packages with peer-dependency relationships must move in one PR. Bumping a
+    # plugin on its own leaves the peer unsatisfied and npm ci fails at install,
+    # before lint or tests ever run.
+    groups:
+      eslint:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
+      astro:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+
+    ignore:
+      # @astrojs/check (latest 0.9.10) declares peer typescript "^5.0.0 || ^6.0.0",
+      # so a TypeScript 7 bump cannot resolve and its PR can never pass CI.
+      # Remove this entry once @astrojs/check supports TypeScript 7.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
