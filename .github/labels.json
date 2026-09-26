@@ -1,0 +1,42 @@
+[
+  {
+    "name": "type: chore",
+    "color": "C5DEF5",
+    "description": "Housekeeping with no end user"
+  },
+  {
+    "name": "type: ci/cd",
+    "color": "5319E7",
+    "description": "Pipeline and workflow changes"
+  },
+  {
+    "name": "epic: layout",
+    "color": "D4C5F9",
+    "description": ""
+  },
+  {
+    "name": "epic: content",
+    "color": "D4C5F9",
+    "description": ""
+  },
+  {
+    "name": "epic: routing",
+    "color": "D4C5F9",
+    "description": ""
+  },
+  {
+    "name": "epic: feeds",
+    "color": "D4C5F9",
+    "description": ""
+  },
+  {
+    "name": "epic: daily-brief",
+    "color": "D4C5F9",
+    "description": ""
+  },
+  {
+    "name": "epic: infra",
+    "color": "D4C5F9",
+    "description": ""
+  }
+]
