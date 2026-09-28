@@ -1,0 +1,40 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	// A page's scoped styles cannot reach an element rendered by this layout, so pages
+	// pick their column width here instead of styling <main> themselves.
+	width?: 'default' | 'wide' | 'full';
+}
+
+const { title, description, width = 'default' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body>
+		<Header />
+		<main class:list={{ wide: width === 'wide', full: width === 'full' }}>
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main.wide {
+		width: var(--content-width-wide);
+	}
+	main.full {
+		width: calc(100% - 2em);
+		max-width: 100%;
+		margin: 0;
+	}
+</style>
