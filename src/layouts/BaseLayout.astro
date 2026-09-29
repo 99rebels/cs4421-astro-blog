@@ -20,8 +20,14 @@ const { title, description, width = 'default' } = Astro.props;
 		<BaseHead title={title} description={description} />
 	</head>
 	<body>
+		<a href="#main-content" class="skip-link">Skip to content</a>
 		<Header />
-		<main class:list={{ wide: width === 'wide', full: width === 'full' }}>
+		{/* tabindex="-1" lets the skip link move focus here without adding <main> to the Tab order. */}
+		<main
+			id="main-content"
+			tabindex="-1"
+			class:list={{ wide: width === 'wide', full: width === 'full' }}
+		>
 			<slot />
 		</main>
 		<Footer />
@@ -29,6 +35,23 @@ const { title, description, width = 'default' } = Astro.props;
 </html>
 
 <style>
+	/* Off-screen rather than display: none, which would also remove it from the Tab order.
+	   It appears when focused so sighted keyboard users can see what they're on. */
+	.skip-link {
+		position: absolute;
+		top: -10em;
+		left: var(--space-sm);
+		padding: 0.5em 1em;
+		background: white;
+	}
+	.skip-link:focus {
+		top: var(--space-sm);
+	}
+	/* <main> only takes focus as the skip link's landing spot. It isn't a control, so a
+	   ring around the whole content area would signal something that can't be activated. */
+	main:focus {
+		outline: none;
+	}
 	main.wide {
 		width: var(--content-width-wide);
 	}

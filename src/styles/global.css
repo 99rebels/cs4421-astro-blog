@@ -87,6 +87,12 @@ a {
 a:hover {
 	color: var(--accent);
 }
+/* Browsers draw their own focus ring, but its look and contrast vary by browser. This gives
+   every link and button the same one. :focus-visible shows it for keyboard focus, not clicks. */
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
 p {
 	margin-bottom: var(--space-sm);
 }
