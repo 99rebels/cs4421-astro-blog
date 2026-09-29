@@ -5,28 +5,35 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-      steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js Runtime
-      uses: actions/setup-node@v4
-      with:
-        node-version: 24
-        cache: 'npm'
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
 
-    - name: Change to CDK folder
-      run: npm cdk && npm ci
+      - name: Install Site Dependencies
+        run: npm ci
 
-    - name: Build Astro Static Site
-      run: npm run build
+      - name: Build Astro Static Site
+        run: npm run build
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+      # The CDK app is a separate project with its own package.json
+      - name: Install CDK Dependencies
+        working-directory: AWS-cdk
+        run: npm ci
 
-    - name: Deploy Infrastructure & Assets with AWS CDK
-      run: npx cdk deploy --require-approval never
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Must run from AWS-cdk so cdk.json is found and '../dist' resolves to the built site
+      - name: Deploy Infrastructure & Assets with AWS CDK
+        working-directory: AWS-cdk
+        run: npx cdk deploy --require-approval never
