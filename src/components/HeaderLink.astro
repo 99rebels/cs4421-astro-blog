@@ -1,15 +1,19 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
+import { isCurrentPage } from '../utils/nav';
 
-type Props = HTMLAttributes<'a'>;
+type Props = HTMLAttributes<'a'> & { href: string };
 
 const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
-const subpath = pathname.match(/[^\/]+/g);
-const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+const isActive = isCurrentPage(href, Astro.url.pathname);
 ---
 
-<a href={href} class:list={[className, { active: isActive }]} {...props}>
+<a
+	href={href}
+	class:list={[className, { active: isActive }]}
+	aria-current={isActive ? 'page' : undefined}
+	{...props}
+>
 	<slot />
 </a>
 <style>
