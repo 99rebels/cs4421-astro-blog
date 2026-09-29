@@ -12,7 +12,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run --dir src"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.1",
