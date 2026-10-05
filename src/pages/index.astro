@@ -1,37 +1,120 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getAge } from '../utils/age';
+
+// Months count from 0 here, so 2 is March. The string '2007-03-01' would be read as
+// UTC midnight, which is still 28 February anywhere behind UTC.
+const age = getAge(new Date(2007, 2, 1), new Date());
 ---
 
-<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-	<h1>🧑‍🚀 Hello, Astronaut!</h1>
-	<p>
-		Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-		serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-		website, blog, or portfolio with Astro.
-	</p>
-	<p>
-		This template comes with a few integrations already configured in your
-		<code>astro.config.mjs</code> file. You can customize your setup with
-		<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-		React, or Vue to your project.
-	</p>
-	<p>Here are a few ideas on how to get started with the template:</p>
-	<ul>
-		<li>Edit this page in <code>src/pages/index.astro</code></li>
-		<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-		<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-		<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-		<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-	</ul>
-	<p>
-		Have fun! If you get stuck, remember to
-		<a href="https://docs.astro.build/">read the docs</a>
-		or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-	</p>
-	<p>
-		Looking for a blog template with a bit more personality? Check out
-		<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-		by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-	</p>
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION} width="wide">
+	<section class="terminal">
+		<p class="title-bar" aria-hidden="true">● ● ● &nbsp;rian@ul: ~</p>
+		<div class="screen">
+			{/* The typed commands are decoration. Screen readers get the output only. */}
+			<p class="command" aria-hidden="true">whoami</p>
+			<h1>Rian O'Leary</h1>
+
+			<p class="command" aria-hidden="true">cat about.txt</p>
+			<p>{age}. First year, Immersive Software Engineering @ UL.</p>
+			<p>I love solving problems. Getting paid to solve them is a bonus.</p>
+			<p>The goal: absolute control over my own time.</p>
+
+			<p class="command" aria-hidden="true">ls ~/built</p>
+			<ul class="ls" aria-label="Things I've built">
+				<li>headless-crm/</li>
+				<li>total-recall/</li>
+			</ul>
+
+			<p class="command" aria-hidden="true">ls</p>
+			<ul class="ls">
+				<li><a href="/blog">latest posts</a></li>
+				<li><a href="/about">about me</a></li>
+			</ul>
+			<span class="cursor" aria-hidden="true"></span>
+		</div>
+	</section>
 </BaseLayout>
+
+<style>
+	/* The terminal's colours live here rather than in global.css, so the dark theme can
+	   turn it black by overriding these four values in one place. */
+	.terminal {
+		--term-bg: #f4ecd8;
+		--term-bar: #e6dcc3;
+		--term-fg: #2b2620;
+		--term-prompt: #8a5a00;
+
+		font-family: ui-monospace, Menlo, Consolas, monospace;
+		color: var(--term-fg);
+		background: var(--term-bg);
+		border: 2px solid var(--term-fg);
+		box-shadow: 6px 6px 0 var(--term-fg);
+	}
+	.title-bar {
+		margin: 0;
+		padding: 0.25em var(--space-sm);
+		background: var(--term-bar);
+		border-bottom: 2px solid var(--term-fg);
+		font-size: 0.8em;
+	}
+	.screen {
+		padding: var(--space-md) var(--space-sm);
+	}
+	.screen p,
+	.screen h1 {
+		margin: 0;
+	}
+	.screen h1 {
+		color: var(--term-fg);
+		font-size: var(--font-step-3);
+	}
+	/* .screen is repeated so this beats the margin reset above, which also matches. */
+	.screen .command {
+		margin-top: var(--space-sm);
+	}
+	.command::before {
+		content: '$ ';
+		color: var(--term-prompt);
+	}
+	.ls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.ls a {
+		display: inline-block;
+		padding: 0.1em 0.6em;
+		color: var(--term-fg);
+		border: 2px solid var(--term-fg);
+		text-decoration: none;
+	}
+	.ls a:hover {
+		color: var(--term-bg);
+		background: var(--term-fg);
+	}
+	.cursor {
+		display: inline-block;
+		width: 0.6em;
+		height: 1.1em;
+		margin-top: var(--space-sm);
+		background: var(--term-fg);
+		animation: cursor-blink 1s steps(1) infinite;
+	}
+	@keyframes cursor-blink {
+		50% {
+			opacity: 0;
+		}
+	}
+	/* Flashing content can trigger vestibular and seizure problems, so respect the
+	   operating system's reduce-motion setting. */
+	@media (prefers-reduced-motion: reduce) {
+		.cursor {
+			animation: none;
+		}
+	}
+</style>
