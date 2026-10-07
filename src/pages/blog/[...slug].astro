@@ -1,9 +1,12 @@
 ---
 import { type CollectionEntry, getCollection, getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { getPublishedPosts } from '../../utils/posts';
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
+	// Filtering here, not just on the index, means a production build never generates
+	// a page for a draft, so its URL can't be guessed.
+	const posts = getPublishedPosts(await getCollection('blog'), import.meta.env.PROD);
 	return posts.map((post) => ({
 		params: { slug: post.id },
 		props: post,
