@@ -1,5 +1,7 @@
 *.js
 !jest.config.js
+# CloudFront Function source is hand-written JavaScript, not compiler output.
+!functions/*.js
 *.d.ts
 node_modules
 
