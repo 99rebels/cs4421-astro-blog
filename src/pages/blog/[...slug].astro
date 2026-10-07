@@ -1,17 +1,18 @@
 ---
-import { type CollectionEntry, getCollection, getEntry, render } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 
-export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
-}
-type Props = CollectionEntry<'blog'>;
+// In server mode this page runs on each request, and getStaticPaths() is ignored, so the
+// post has to be looked up from the URL rather than handed in as props at build time.
+const { slug } = Astro.params;
+const post = slug ? await getEntry('blog', slug) : undefined;
 
-const post = Astro.props;
+// The page now runs for any /blog/ URL, typos included. An unknown post is the visitor's
+// mistake (404), not a server failure (500).
+if (!post) {
+	return new Response(null, { status: 404 });
+}
+
 const { Content } = await render(post);
 const author = await getEntry('authors', post.data.author);
 
