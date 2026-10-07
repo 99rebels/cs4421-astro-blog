@@ -1,0 +1,5 @@
+# dependcies
+node_modules/
+
+# generated types
+.astro/
