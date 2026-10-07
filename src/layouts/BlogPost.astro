@@ -5,7 +5,9 @@ import AuthorBio from '../components/AuthorBio.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import BaseLayout from './BaseLayout.astro';
 
-type Props = Omit<CollectionEntry<'blog'>['data'], 'author'> & {
+// tags and draft are left out because this layout never shows them. Requiring them
+// would force the About page, which uses this layout but isn't a post, to pass both.
+type Props = Omit<CollectionEntry<'blog'>['data'], 'author' | 'tags' | 'draft'> & {
 	author?: CollectionEntry<'authors'>['data'];
 };
 
