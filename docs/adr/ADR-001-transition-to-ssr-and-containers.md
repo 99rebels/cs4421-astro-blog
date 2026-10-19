@@ -12,8 +12,7 @@ needs a rebuild locally and a redeploy.
 
 The site is moving towards regularly published content: a weekly news roundup now,
 and an automatically generated daily brief later. It also needs server-side
-endpoints. `/api/health` lets a container platform check the app is alive, and
-`/api/feedback` accepts input from readers.
+endpoints. `/api/health` lets a container platform check the app is alive.
 
 S3 can only serve files. It cannot compute server-side Node.js code, so none of these
 endpoints can exist on the current hosting.
@@ -34,6 +33,7 @@ We will configure Astro with the `@astrojs/node` adapter in standalone mode and
 - Pages can be rendered per request, which is the groundwork for content that
   changes dynamically.
 - The same container runs locally and in AWS.
+
 **Negative**
 
 - Needs always-on compute, which costs more than serving files from S3.
