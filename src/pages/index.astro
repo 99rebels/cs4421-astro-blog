@@ -52,6 +52,13 @@ const age = getAge(new Date(2007, 2, 1), new Date());
 		border: 2px solid var(--term-fg);
 		box-shadow: 6px 6px 0 var(--term-fg);
 	}
+	/* :global because data-theme sits on <html>, outside this component's scope. */
+	:global(:root[data-theme='dark']) .terminal {
+		--term-bg: #000;
+		--term-bar: #1a1a1a;
+		--term-fg: #e8e2d0;
+		--term-prompt: #e0a030;
+	}
 	.title-bar {
 		margin: 0;
 		padding: 0.25em var(--space-sm);

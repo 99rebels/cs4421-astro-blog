@@ -15,6 +15,9 @@ const blog = defineCollection({
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
 			author: z.string(),
+			tags: z.array(z.string()).default([]),
+			// Drafts are hidden from production builds but still visible in `astro dev`.
+			draft: z.boolean().default(false),
 		}),
 });
 

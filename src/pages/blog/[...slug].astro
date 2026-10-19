@@ -7,9 +7,10 @@ import BlogPost from '../../layouts/BlogPost.astro';
 const { slug } = Astro.params;
 const post = slug ? await getEntry('blog', slug) : undefined;
 
-// The page now runs for any /blog/ URL, typos included. An unknown post is the visitor's
-// mistake (404), not a server failure (500).
-if (!post) {
+// Unknown posts and, in production, drafts both get a plain 404. Drafts get the same
+// response so their URL can't be guessed; `astro dev` still shows them for previewing.
+if (!post || (import.meta.env.PROD && post.data.draft)) {
+
 	return new Response(null, { status: 404 });
 }
 

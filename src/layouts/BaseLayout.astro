@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import { resolveTheme } from '../utils/theme';
 
 interface Props {
 	title: string;
@@ -12,12 +13,27 @@ interface Props {
 }
 
 const { title, description, width = 'default' } = Astro.props;
+
+// The theme must be set before the page first paints, or a visitor who chose dark sees
+// a flash of light first. Bundled scripts are deferred until after the page is parsed,
+// so this has to be an inline script. Inline scripts can't import, so the tested
+// resolveTheme is pasted in as source text. localStorage throws when the browser blocks
+// storage, so a failed read counts as "nothing stored".
+const themeScript = `
+	let stored = null;
+	try {
+		stored = localStorage.getItem('theme');
+	} catch {}
+	const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+	document.documentElement.dataset.theme = (${resolveTheme.toString()})(stored, prefersDark);
+`;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<BaseHead title={title} description={description} />
+		<script is:inline set:html={themeScript} />
 	</head>
 	<body>
 		<a href="#main-content" class="skip-link">Skip to content</a>
@@ -42,7 +58,7 @@ const { title, description, width = 'default' } = Astro.props;
 		top: -10em;
 		left: var(--space-sm);
 		padding: 0.5em 1em;
-		background: white;
+		background: var(--surface);
 	}
 	.skip-link:focus {
 		top: var(--space-sm);

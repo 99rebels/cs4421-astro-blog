@@ -4,10 +4,9 @@ import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getPublishedPosts, readingTime } from '../../utils/posts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const posts = getPublishedPosts(await getCollection('blog'), import.meta.env.PROD);
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION} width="wide">
@@ -25,8 +24,15 @@ const posts = (await getCollection('blog')).sort(
 								)}
 								<h4 class="title">{post.data.title}</h4>
 								<p class="date">
-									<FormattedDate date={post.data.pubDate} />
+									<FormattedDate date={post.data.pubDate} /> · {readingTime(post.body ?? '')} min read
 								</p>
+								{post.data.tags.length > 0 && (
+									<p class="tags">
+										{post.data.tags.map((tag) => (
+											<span class="tag">#{tag}</span>
+										))}
+									</p>
+								)}
 							</a>
 						</li>
 					))}
@@ -78,6 +84,17 @@ const posts = (await getCollection('blog')).sort(
 	.date {
 		margin: 0;
 		color: rgb(var(--gray));
+	}
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin: 0.25em 0 0;
+		color: rgb(var(--gray));
+		font-size: 0.8em;
+	}
+	ul li:first-child .tags {
+		justify-content: center;
 	}
 	ul li a:hover h4,
 	ul li a:hover .date {
