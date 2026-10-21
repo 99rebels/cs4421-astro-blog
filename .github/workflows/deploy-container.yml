@@ -1,0 +1,62 @@
+name: Deploy Container to AWS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24 # Same Node version as the Docker image
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Quality gate: a failing test stops the deploy before anything reaches AWS
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Tagged with the commit SHA so every deployed version stays in ECR as a rollback target
+      - name: Build, tag and push image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/astro-blog:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/astro-blog:$IMAGE_TAG
+
+      # Not used by the image (Docker builds its own). CDK synthesises every stack in the app,
+      # and the static stack needs ../dist to exist, so synth fails on a fresh runner without it.
+      - name: Build site for CDK synth
+        run: npm run build
+
+      # The CDK app is a separate project with its own package.json
+      - name: Install CDK dependencies
+        working-directory: AWS-cdk
+        run: npm ci
+
+      # Named stack only: deploying the static stack would wipe the S3 site (see
+      # deploy-static.yml.disabled). Waits for the ECS rollout, so a version that fails its
+      # health checks is rolled back and this step goes red.
+      - name: Deploy new image to ECS
+        working-directory: AWS-cdk
+        run: npx cdk deploy EcsStack --require-approval never --parameters EcsStack:ImageTag=${{ github.sha }}
