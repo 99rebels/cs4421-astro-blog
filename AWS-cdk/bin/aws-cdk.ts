@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib/core';
 import { AwsCdkStack } from '../lib/aws-cdk-stack';
+import { EcrStack, EcsStack } from '../lib/ecs-stack';
 
 const app = new cdk.App();
 new AwsCdkStack(app, 'AwsCdkStack', {
@@ -17,4 +18,13 @@ new AwsCdkStack(app, 'AwsCdkStack', {
    env: { account: '808198485142', region: 'us-east-1' },
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+});
+
+const ecrStack = new EcrStack(app, 'EcrStack', {
+  env: { account: '808198485142', region: 'us-east-1' },
+});
+
+new EcsStack(app, 'EcsStack', {
+  env: { account: '808198485142', region: 'us-east-1' },
+  repository: ecrStack.repository,
 });
