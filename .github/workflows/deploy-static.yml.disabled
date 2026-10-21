@@ -1,0 +1,49 @@
+# Disabled for the move to server rendering (ADR-001).
+#
+# With output: 'server', `npm run build` no longer produces HTML pages: dist/client holds
+# only assets and dist/server holds the server code. The CDK stack uploads all of ../dist
+# and deletes anything in the bucket that isn't in the upload, so running this would wipe
+# the live static site and make the server code publicly downloadable. Until the static
+# site has a build of its own, it stays live, frozen at its last static deploy.
+#
+# Running `cdk deploy` by hand from AWS-cdk/ would do the same damage.
+
+# name: Deploy Static Site via AWS CDK
+# on:
+#   push:
+#     branches: [main]
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Source Code
+#         uses: actions/checkout@v4
+#
+#       - name: Setup Node.js Runtime
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 24
+#           cache: 'npm'
+#
+#       - name: Install Site Dependencies
+#         run: npm ci
+#
+#       - name: Build Astro Static Site
+#         run: npm run build
+#
+#       # The CDK app is a separate project with its own package.json
+#       - name: Install CDK Dependencies
+#         working-directory: AWS-cdk
+#         run: npm ci
+#
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: us-east-1
+#
+#       # Must run from AWS-cdk so cdk.json is found and '../dist' resolves to the built site
+#       - name: Deploy Infrastructure & Assets with AWS CDK
+#         working-directory: AWS-cdk
+#         run: npx cdk deploy --require-approval never

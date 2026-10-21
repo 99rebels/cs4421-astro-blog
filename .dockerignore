@@ -1,0 +1,8 @@
+# dependcies
+node_modules/
+
+# generated types
+.astro/
+
+# git history isn't needed to build the image
+.git/

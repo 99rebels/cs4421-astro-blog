@@ -1,20 +1,19 @@
 ---
-import { type CollectionEntry, getCollection, getEntry, render } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { getPublishedPosts } from '../../utils/posts';
 
-export async function getStaticPaths() {
-	// Filtering here, not just on the index, means a production build never generates
-	// a page for a draft, so its URL can't be guessed.
-	const posts = getPublishedPosts(await getCollection('blog'), import.meta.env.PROD);
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
+// In server mode this page runs on each request, and getStaticPaths() is ignored, so the
+// post has to be looked up from the URL rather than handed in as props at build time.
+const { slug } = Astro.params;
+const post = slug ? await getEntry('blog', slug) : undefined;
+
+// Unknown posts and, in production, drafts both get a plain 404. Drafts get the same
+// response so their URL can't be guessed; `astro dev` still shows them for previewing.
+if (!post || (import.meta.env.PROD && post.data.draft)) {
+
+	return new Response(null, { status: 404 });
 }
-type Props = CollectionEntry<'blog'>;
 
-const post = Astro.props;
 const { Content } = await render(post);
 const author = await getEntry('authors', post.data.author);
 
