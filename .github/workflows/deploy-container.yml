@@ -59,4 +59,15 @@ jobs:
       # health checks is rolled back and this step goes red.
       - name: Deploy new image to ECS
         working-directory: AWS-cdk
-        run: npx cdk deploy EcsStack --require-approval never --parameters EcsStack:ImageTag=${{ github.sha }}
+        run: >-
+          npx cdk deploy EcsStack --require-approval never
+          --parameters EcsStack:ImageTag=${{ github.sha }}
+          --parameters EcsStack:AlertEmail=${{ secrets.ALERT_EMAIL }}
+
+      # "Deployed" isn't "working": ask the live site which commit it runs. Retries cover the
+      # load balancer briefly answering before the new task is fully in service.
+      - name: Smoke test live site
+        run: |
+          live=$(curl --fail --silent --retry 5 --retry-delay 10 --retry-all-errors https://blog.99rebels.com/api/health | jq -r .commit)
+          echo "Live commit: $live, expected: ${{ github.sha }}"
+          test "$live" = "${{ github.sha }}"
