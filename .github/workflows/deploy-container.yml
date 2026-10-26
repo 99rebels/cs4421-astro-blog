@@ -35,14 +35,20 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # Tagged with the commit SHA so every deployed version stays in ECR as a rollback target
+      # Tagged with the commit SHA so every deployed version stays in ECR as a rollback target.
+      # ECR refuses to overwrite a tag, so a re-run of this workflow reuses the image instead
+      # of failing at the push.
       - name: Build, tag and push image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/astro-blog:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/astro-blog:$IMAGE_TAG
+          if aws ecr describe-images --repository-name astro-blog --image-ids imageTag=$IMAGE_TAG > /dev/null 2>&1; then
+            echo "Image $IMAGE_TAG is already in ECR, reusing it"
+          else
+            docker build -t $ECR_REGISTRY/astro-blog:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/astro-blog:$IMAGE_TAG
+          fi
 
       # Not used by the image (Docker builds its own). CDK synthesises every stack in the app,
       # and the static stack needs ../dist to exist, so synth fails on a fresh runner without it.
