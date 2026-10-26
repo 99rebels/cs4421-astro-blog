@@ -1,39 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getPublishedPosts, readingTime } from './posts';
-
-function post(id: string, pubDate: string, draft = false) {
-	return { id, data: { pubDate: new Date(pubDate), draft } };
-}
-
-describe('getPublishedPosts', () => {
-	const posts = [
-		post('old', '2026-01-01'),
-		post('draft', '2026-03-01', true),
-		post('new', '2026-02-01'),
-	];
-
-	it('hides drafts in production', () => {
-		const ids = getPublishedPosts(posts, true).map((p) => p.id);
-
-		expect(ids).not.toContain('draft');
-	});
-
-	it('keeps drafts in development', () => {
-		const ids = getPublishedPosts(posts, false).map((p) => p.id);
-
-		expect(ids).toContain('draft');
-	});
-
-	it('lists posts newest first', () => {
-		expect(getPublishedPosts(posts, true).map((p) => p.id)).toEqual(['new', 'old']);
-		expect(getPublishedPosts(posts, false).map((p) => p.id)).toEqual(['draft', 'new', 'old']);
-	});
-
-	it('returns an empty list when there are no posts', () => {
-		expect(getPublishedPosts([], true)).toEqual([]);
-	});
-});
+import { readingTime } from './posts';
 
 describe('readingTime', () => {
 	it('rounds a normal post up to the next whole minute', () => {

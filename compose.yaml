@@ -1,0 +1,32 @@
+# Local only: the app and a throwaway Postgres. The password below is for this local
+# database and nothing else; the live connection string lives in AWS, never in the repo.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: blog
+      POSTGRES_PASSWORD: blog
+      POSTGRES_DB: blog
+    ports:
+      - '5432:5432'
+    # Postgres runs these once, in name order, when it starts with an empty data folder.
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U blog -d blog']
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - '4321:4321'
+    environment:
+      # Defaults to the local db. Set SUPABASE_URL to run this same container against
+      # Supabase instead, to test the real connection before deploying.
+      DATABASE_URL: ${SUPABASE_URL:-postgres://blog:blog@db:5432/blog}
+    depends_on:
+      db:
+        condition: service_healthy

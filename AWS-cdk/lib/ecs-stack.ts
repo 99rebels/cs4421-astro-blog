@@ -10,6 +10,7 @@ import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 
 export class EcrStack extends cdk.Stack {
   public readonly repository: ecr.Repository;
@@ -102,6 +103,16 @@ export class EcsStack extends cdk.Stack {
         containerPort: port,
         // The image tag is the commit SHA, so /api/health can report which commit is live.
         environment: { PORT: String(port), COMMIT_SHA: imageTag.valueAsString },
+        // The Supabase connection string holds the database password, so it's created by
+        // hand in SSM Parameter Store and only its name appears here. ECS fetches the
+        // value when the container starts and hands it to the app as DATABASE_URL.
+        secrets: {
+          DATABASE_URL: ecs.Secret.fromSsmParameter(
+            ssm.StringParameter.fromSecureStringParameterAttributes(this, 'DatabaseUrl', {
+              parameterName: '/astro-blog/database-url',
+            }),
+          ),
+        },
         logDriver: ecs.LogDrivers.awsLogs({ streamPrefix: 'astro', logGroup }),
       },
     });
