@@ -1,0 +1,88 @@
+name: Roll Back to a Version
+
+# Run by hand from the Actions tab. Redeploys the image of an earlier tagged version without
+# rebuilding it, for when a version deployed fine but turned out to be broken. Also rolls
+# forward: give it a newer tag. Only the app image changes; the infrastructure stays as it is
+# on main, so rolling back can't undo HTTPS, the alarm or the database settings.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy, e.g. v1.1.0'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      # Full history, so every tag is available to look up.
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The version goes through an environment variable rather than straight into the
+      # script, so text typed into the input can't be run as shell commands.
+      - name: Find the commit for this version
+        id: version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          sha=$(git rev-list -n 1 "refs/tags/$VERSION" 2>/dev/null) || {
+            echo "::error::No git tag called $VERSION"
+            exit 1
+          }
+          echo "$VERSION is commit $sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Same reason as in deploy-container.yml: CDK synthesises the static stack too, which
+      # needs ../dist to exist.
+      - name: Build site for CDK synth
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Only commits that went through the deploy have an image. Failing here gives a clear
+      # message instead of a failed ECS rollout ten minutes later.
+      - name: Check the image exists in ECR
+        env:
+          SHA: ${{ steps.version.outputs.sha }}
+        run: |
+          aws ecr describe-images --repository-name astro-blog --image-ids imageTag=$SHA > /dev/null || {
+            echo "::error::No image for $SHA in ECR. Was this commit ever deployed?"
+            exit 1
+          }
+
+      - name: Install CDK dependencies
+        working-directory: AWS-cdk
+        run: npm ci
+
+      - name: Deploy the version's image to ECS
+        working-directory: AWS-cdk
+        run: >-
+          npx cdk deploy EcsStack --require-approval never
+          --parameters EcsStack:ImageTag=${{ steps.version.outputs.sha }}
+          --parameters EcsStack:AlertEmail=${{ secrets.ALERT_EMAIL }}
+
+      - name: Smoke test live site
+        env:
+          SHA: ${{ steps.version.outputs.sha }}
+        run: |
+          live=$(curl --fail --silent --retry 5 --retry-delay 10 --retry-all-errors https://blog.99rebels.com/api/health | jq -r .commit)
+          echo "Live commit: $live, expected: $SHA"
+          test "$live" = "$SHA"

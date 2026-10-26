@@ -22,6 +22,9 @@ export class EcrStack extends cdk.Stack {
     this.repository = new ecr.Repository(this, 'AstroRepository', {
       repositoryName: 'astro-blog',
       imageScanOnPush: true,
+      // A tag always means the same image, so rolling back to a commit's tag is guaranteed
+      // to run the code from that commit.
+      imageTagMutability: ecr.TagMutability.IMMUTABLE,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
