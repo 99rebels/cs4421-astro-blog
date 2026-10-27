@@ -1,27 +1,21 @@
 ---
-import { getEntry, render } from 'astro:content';
+import { getSql } from '../../db/client';
+import { getPost } from '../../db/posts';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { renderMarkdown } from '../../utils/markdown';
 
-// In server mode this page runs on each request, and getStaticPaths() is ignored, so the
-// post has to be looked up from the URL rather than handed in as props at build time.
+// Server mode: this page runs on every request, so a post added to the database shows up
+// without a rebuild.
 const { slug } = Astro.params;
-const post = slug ? await getEntry('blog', slug) : undefined;
+const post = slug ? await getPost(getSql(), slug) : undefined;
 
-// Unknown posts and, in production, drafts both get a plain 404. Drafts get the same
-// response so their URL can't be guessed; `astro dev` still shows them for previewing.
-if (!post || (import.meta.env.PROD && post.data.draft)) {
-
+if (!post) {
 	return new Response(null, { status: 404 });
 }
 
-const { Content } = await render(post);
-const author = await getEntry('authors', post.data.author);
-
-if (!author) {
-	throw new Error(`Author not found: ${post.data.author}`);
-}
+const html = renderMarkdown(post.body);
 ---
 
-<BlogPost {...post.data} author={author.data}>
-	<Content />
+<BlogPost title={post.title} description={post.description} pubDate={post.publishedAt}>
+	<Fragment set:html={html} />
 </BlogPost>

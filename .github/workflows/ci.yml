@@ -7,6 +7,22 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    # A real Postgres next to the job for the integration tests, removed when the job ends.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: blog
+          POSTGRES_PASSWORD: blog
+          POSTGRES_DB: blog
+        ports:
+          - 5432:5432
+        # Steps start only once Postgres accepts connections.
+        options: >-
+          --health-cmd "pg_isready -U blog -d blog"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 10
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -29,5 +45,46 @@ jobs:
       - name: Unit tests
         run: npm run test:unit
 
+      - name: Integration tests
+        run: npm run test:integration
+        env:
+          TEST_DATABASE_URL: postgres://blog:blog@localhost:5432/blog
+
       - name: Build
         run: npm run build
+
+  # Tests the image that actually gets deployed, not just the source code. Only starts once
+  # the checks above pass, since there's no point building an image from failing code.
+  container:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # The same compose file as local development: builds the image from the Dockerfile
+      # and starts it next to Postgres with the sample posts. --wait fails this step if a
+      # container exits or never reports healthy, which catches a broken image or health check.
+      - name: Start the app and database
+        run: docker compose up --build --wait --wait-timeout 120
+
+      - name: Setup Node.js runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Only Chromium, plus the system libraries it needs on a fresh runner.
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      # Without this, a failure here means re-running everything locally to see why.
+      - name: Show container logs
+        if: failure()
+        run: docker compose logs

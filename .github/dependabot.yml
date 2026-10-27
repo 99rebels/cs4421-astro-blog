@@ -30,3 +30,19 @@ updates:
       # Remove this entry once @astrojs/check supports TypeScript 7.
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+
+  # Bumps the actions used in .github/workflows (actions/checkout, setup-node, ...).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Bumps the base image in the Dockerfile (node:24-alpine) when a newer patch is published.
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # A new Node major version is a deliberate upgrade, not a weekly bot PR.
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]

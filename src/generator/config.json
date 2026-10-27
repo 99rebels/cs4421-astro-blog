@@ -1,0 +1,48 @@
+{
+	"model": "gemini-3.8-flash",
+	"windowHours": 24,
+	"maxItemsPerTopic": 12,
+	"topics": [
+		{
+			"name": "AI",
+			"feeds": [
+				"https://techcrunch.com/category/artificial-intelligence/feed/",
+				"https://www.technologyreview.com/feed/"
+			]
+		},
+		{
+			"name": "Tech",
+			"feeds": [
+				"https://hnrss.org/frontpage",
+				"https://feeds.arstechnica.com/arstechnica/index",
+				"https://www.theverge.com/rss/index.xml",
+				"https://feeds.bbci.co.uk/news/technology/rss.xml"
+			]
+		},
+		{
+			"name": "Markets",
+			"feeds": [
+				"https://www.cnbc.com/id/100003114/device/rss/rss.html",
+				"https://feeds.bbci.co.uk/news/business/rss.xml"
+			]
+		},
+		{
+			"name": "Space",
+			"feeds": ["https://www.nasa.gov/news-release/feed/", "https://www.space.com/feeds/all"]
+		}
+	],
+	"podcasts": [
+		{ "name": "Cheeky Pint", "feed": "https://feeds.transistor.fm/cheeky-pint-with-john-collison" },
+		{ "name": "All-In", "feed": "https://rss.libsyn.com/shows/254861/destinations/1928300.xml" },
+		{ "name": "Prof G Markets", "feed": "https://feeds.megaphone.fm/profgmarkets" },
+		{ "name": "How I Built This", "feed": "https://feeds.megaphone.fm/VMP2035168248" },
+		{ "name": "Modern Wisdom", "feed": "https://feeds.megaphone.fm/SIXMSB5088139739" }
+	],
+	"recommendations": {
+		"count": 3,
+		"searchTerms": ["startup founders", "big tech", "stock market", "venture capital", "business strategy"],
+		"minEpisodes": 20,
+		"activeWithinDays": 30,
+		"noRepeatDays": 30
+	}
+}
