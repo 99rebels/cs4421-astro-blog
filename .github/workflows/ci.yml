@@ -25,7 +25,7 @@ jobs:
           --health-retries 10
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js runtime
         uses: actions/setup-node@v4
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # The same compose file as local development: builds the image from the Dockerfile
       # and starts it next to Postgres with the sample posts. --wait fails this step if a
