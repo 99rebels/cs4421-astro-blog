@@ -77,9 +77,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Only Chromium, plus the system libraries it needs on a fresh runner.
+      # Only the small headless browser the tests use. No --with-deps: that installs system
+      # packages with apt, which hung on GitHub's Ubuntu mirror, and the runner already has
+      # the libraries Chromium needs because Google Chrome comes preinstalled.
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --only-shell chromium
+        # A stalled download fails here in minutes instead of hanging the job for hours.
+        timeout-minutes: 5
 
       - name: End-to-end tests
         run: npm run test:e2e
