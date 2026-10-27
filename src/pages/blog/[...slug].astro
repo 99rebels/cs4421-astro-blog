@@ -3,6 +3,7 @@ import { getSql } from '../../db/client';
 import { getPost } from '../../db/posts';
 import BlogPost from '../../layouts/BlogPost.astro';
 import { renderMarkdown } from '../../utils/markdown';
+import { readingTime } from '../../utils/posts';
 
 // Server mode: this page runs on every request, so a post added to the database shows up
 // without a rebuild.
@@ -16,6 +17,12 @@ if (!post) {
 const html = renderMarkdown(post.body);
 ---
 
-<BlogPost title={post.title} description={post.description} pubDate={post.publishedAt}>
+<BlogPost
+	title={post.title}
+	description={post.description}
+	pubDate={post.publishedAt}
+	slug={post.slug}
+	readingMinutes={readingTime(post.body)}
+>
 	<Fragment set:html={html} />
 </BlogPost>

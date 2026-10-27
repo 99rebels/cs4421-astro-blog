@@ -26,3 +26,16 @@ test.describe('theme', () => {
 		await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 	});
 });
+
+test('the terminal look, opened from the hidden hatch, survives a reload', async ({ page }) => {
+	await page.goto('/');
+	// A first visit gets the classic look.
+	await expect(page.locator('html')).toHaveAttribute('data-view', 'classic');
+
+	// click() hovers first, which opens the hatch's lid, just as it would for a visitor.
+	await page.getByRole('button', { name: 'Switch to terminal look' }).click();
+	await page.reload();
+
+	await expect(page.locator('html')).toHaveAttribute('data-view', 'terminal');
+	await expect(page.getByRole('button', { name: 'Switch to classic look' })).toBeVisible();
+});

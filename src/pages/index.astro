@@ -1,6 +1,8 @@
 ---
+import Window from '../components/Window.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { PROJECTS } from '../projects';
 import { getAge } from '../utils/age';
 
 // Months count from 0 here, so 2 is March. The string '2007-03-01' would be read as
@@ -9,83 +11,49 @@ const age = getAge(new Date(2007, 2, 1), new Date());
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION} width="wide">
-	<section class="terminal">
-		<p class="title-bar" aria-hidden="true">● ● ● &nbsp;rian@ul: ~</p>
-		<div class="screen">
+	<Window path="~">
+		<div class="hero">
+			<div class="stripes classic-only" aria-hidden="true"></div>
 			{/* The typed commands are decoration. Screen readers get the output only. */}
-			<p class="command" aria-hidden="true">whoami</p>
+			<p class="command terminal-only" aria-hidden="true">whoami</p>
+			<p class="kicker classic-only" aria-hidden="true">Hello, my name is</p>
 			<h1>Rian O'Leary</h1>
 
-			<p class="command" aria-hidden="true">cat about.txt</p>
-			<p>{age}. First year, Immersive Software Engineering @ UL.</p>
-			<p>I love solving problems. Getting paid to solve them is a bonus.</p>
-			<p>The goal: absolute control over my own time.</p>
+			<p class="command terminal-only" aria-hidden="true">cat about.txt</p>
+			<div class="about">
+				<p>{age}. First year, Immersive Software Engineering @ UL.</p>
+				<p>I love solving problems. Getting paid to solve them is a bonus.</p>
+				<p>The goal: absolute control over my own time.</p>
+			</div>
 
-			<p class="command" aria-hidden="true">ls ~/built</p>
-			<ul class="ls" aria-label="Things I've built">
-				<li>headless-crm/</li>
-				<li>total-recall/</li>
+			<p class="command terminal-only" aria-hidden="true">ls ~/projects</p>
+			<h2>View my projects</h2>
+			<ul class="projects">
+				{
+					PROJECTS.map((project) => (
+						<li>
+							<a href={project.url}>{project.slug}</a>
+						</li>
+					))
+				}
 			</ul>
 
-			<p class="command" aria-hidden="true">ls</p>
-			<ul class="ls">
+			<p class="command terminal-only" aria-hidden="true">ls</p>
+			<ul class="actions">
 				<li><a href="/blog">latest posts</a></li>
 				<li><a href="/about">about me</a></li>
 			</ul>
-			<span class="cursor" aria-hidden="true"></span>
+			<span class="cursor terminal-only" aria-hidden="true"></span>
 		</div>
-	</section>
+	</Window>
 </BaseLayout>
 
 <style>
-	/* The terminal's colours live here rather than in global.css, so the dark theme can
-	   turn it black by overriding these four values in one place. */
-	.terminal {
-		--term-bg: #f4ecd8;
-		--term-bar: #e6dcc3;
-		--term-fg: #2b2620;
-		--term-prompt: #8a5a00;
-
-		font-family: ui-monospace, Menlo, Consolas, monospace;
-		color: var(--term-fg);
-		background: var(--term-bg);
-		border: 2px solid var(--term-fg);
-		box-shadow: 6px 6px 0 var(--term-fg);
-	}
-	/* :global because data-theme sits on <html>, outside this component's scope. */
-	:global(:root[data-theme='dark']) .terminal {
-		--term-bg: #000;
-		--term-bar: #1a1a1a;
-		--term-fg: #e8e2d0;
-		--term-prompt: #e0a030;
-	}
-	.title-bar {
-		margin: 0;
-		padding: 0.25em var(--space-sm);
-		background: var(--term-bar);
-		border-bottom: 2px solid var(--term-fg);
-		font-size: 0.8em;
-	}
-	.screen {
-		padding: var(--space-md) var(--space-sm);
-	}
-	.screen p,
-	.screen h1 {
+	.hero p,
+	.hero h1 {
 		margin: 0;
 	}
-	.screen h1 {
-		color: var(--term-fg);
-		font-size: var(--font-step-3);
-	}
-	/* .screen is repeated so this beats the margin reset above, which also matches. */
-	.screen .command {
-		margin-top: var(--space-sm);
-	}
-	.command::before {
-		content: '$ ';
-		color: var(--term-prompt);
-	}
-	.ls {
+	ul {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--space-sm);
@@ -93,35 +61,111 @@ const age = getAge(new Date(2007, 2, 1), new Date());
 		padding: 0;
 		list-style: none;
 	}
-	.ls a {
+
+	/* Classic: a big friendly intro card. */
+	:global(:root:not([data-view='terminal'])) .hero {
+		overflow: hidden;
+		padding: 0 var(--space-lg) var(--space-xl);
+		background: var(--card);
+		border: 3px solid var(--border);
+		border-radius: var(--radius);
+		box-shadow: var(--shadow);
+	}
+	/* The stripes run edge to edge across the top of the card. */
+	.hero .stripes {
+		margin: 0 calc(-1 * var(--space-lg)) var(--space-lg);
+	}
+	/* In the terminal look the stripes are hidden, but they still count as the first
+	   element, so the first command would get the gap meant for later commands. */
+	.stripes + .command {
+		margin-top: 0;
+	}
+	.kicker {
+		color: var(--muted);
+		font-family: var(--font-heading);
+		font-style: italic;
+	}
+	/* Classic: the name in big serif type with an offset "misprint" shadow, like 70s posters. */
+	:global(:root:not([data-view='terminal'])) h1 {
+		font-size: clamp(2.4em, 8vw, 4.2em);
+		line-height: 1;
+		text-shadow:
+			3px 3px 0 var(--accent-2),
+			6px 6px 0 var(--accent);
+	}
+	:global(:root:not([data-view='terminal'])) .about {
+		margin: var(--space-md) 0;
+		font-size: 1.1em;
+	}
+	/* Classic: a small heading, then each project as a button that wraps onto new lines. */
+	:global(:root:not([data-view='terminal'])) h2 {
+		margin-top: var(--space-md);
+		font-size: var(--font-step-1);
+	}
+	:global(:root:not([data-view='terminal'])) .projects {
+		gap: var(--space-xs);
+		margin-bottom: var(--space-lg);
+	}
+	:global(:root:not([data-view='terminal'])) .projects a {
+		display: inline-block;
+		padding: 0.15em 0.8em;
+		color: var(--on-accent);
+		font-family: var(--font-mono);
+		font-size: 0.85em;
+		text-decoration: none;
+		background: var(--accent-3);
+		border: 2px solid var(--border);
+		border-radius: 6px;
+		box-shadow: 2px 2px 0 var(--shadow-colour);
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+	:global(:root:not([data-view='terminal'])) .projects a:hover {
+		transform: translateY(-2px);
+		box-shadow: 2px 4px 0 var(--shadow-colour);
+	}
+	:global(:root:not([data-view='terminal'])) .actions a {
+		display: inline-block;
+		padding: 0.5em 1.2em;
+		color: var(--on-accent);
+		font-weight: 700;
+		text-decoration: none;
+		background: var(--accent);
+		border: 3px solid var(--border);
+		border-radius: 999px;
+		box-shadow: 3px 3px 0 var(--shadow-colour);
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+	:global(:root:not([data-view='terminal'])) .actions li:nth-child(2) a {
+		background: var(--accent-2);
+	}
+	:global(:root:not([data-view='terminal'])) .actions a:hover {
+		transform: translateY(-2px);
+		box-shadow: 3px 5px 0 var(--shadow-colour);
+	}
+
+	/* Terminal: projects listed like folders, e.g. total-recall/. */
+	:global(:root[data-view='terminal']) .projects a::after {
+		content: '/';
+	}
+	/* Terminal: the original homepage terminal. */
+	:global(:root[data-view='terminal']) .actions a {
 		display: inline-block;
 		padding: 0.1em 0.6em;
-		color: var(--term-fg);
-		border: 2px solid var(--term-fg);
+		color: var(--ink);
 		text-decoration: none;
-	}
-	.ls a:hover {
-		color: var(--term-bg);
-		background: var(--term-fg);
+		border: 2px solid var(--border);
 	}
 	.cursor {
 		display: inline-block;
 		width: 0.6em;
 		height: 1.1em;
 		margin-top: var(--space-sm);
-		background: var(--term-fg);
+		background: var(--ink);
 		animation: cursor-blink 1s steps(1) infinite;
 	}
 	@keyframes cursor-blink {
 		50% {
 			opacity: 0;
-		}
-	}
-	/* Flashing content can trigger vestibular and seizure problems, so respect the
-	   operating system's reduce-motion setting. */
-	@media (prefers-reduced-motion: reduce) {
-		.cursor {
-			animation: none;
 		}
 	}
 </style>

@@ -1,0 +1,58 @@
+---
+import Window from '../components/Window.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Astro shows this page for any unknown URL, and for a post slug that isn't in the
+// database (the post page returns a 404, which Astro renders with this page).
+const path = Astro.url.pathname;
+---
+
+<BaseLayout title="Page not found" description="This page doesn't exist.">
+	<Window path="~">
+		<p class="command terminal-only" aria-hidden="true">cd {path}</p>
+		<p class="terminal-only error" aria-hidden="true">bash: cd: {path}: No such file or directory</p>
+		<p class="big classic-only" aria-hidden="true">404</p>
+		<h1>Page not found</h1>
+		<p>There's nothing at <code>{path}</code>. It may have moved, or the link has a typo.</p>
+		<p class="command terminal-only" aria-hidden="true">ls</p>
+		<ul>
+			<li><a href="/blog/">Read the latest posts</a></li>
+			<li><a href="/">Go to the homepage</a></li>
+		</ul>
+	</Window>
+</BaseLayout>
+
+<style>
+	.big {
+		margin: 0;
+		color: var(--accent);
+		font-size: clamp(5em, 20vw, 9em);
+		font-weight: 700;
+		line-height: 1;
+		font-family: var(--font-heading);
+		text-shadow:
+			4px 4px 0 var(--accent-2),
+			8px 8px 0 var(--stripe-red);
+	}
+	.error {
+		color: var(--muted);
+	}
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
+		padding: 0;
+		list-style: none;
+	}
+	:global(:root:not([data-view='terminal'])) ul a {
+		display: inline-block;
+		padding: 0.4em 1em;
+		color: var(--on-accent);
+		font-weight: 700;
+		text-decoration: none;
+		background: var(--accent-3);
+		border: 3px solid var(--border);
+		border-radius: 999px;
+		box-shadow: 3px 3px 0 var(--shadow-colour);
+	}
+</style>
