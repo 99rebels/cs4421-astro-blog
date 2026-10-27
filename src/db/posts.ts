@@ -32,6 +32,25 @@ export async function getPost(sql: Sql, slug: string): Promise<Post | undefined>
 	return post;
 }
 
+/** True if a post with this slug exists. Lets the generator skip a day that's already done. */
+export async function postExists(sql: Sql, slug: string): Promise<boolean> {
+	const [row] = await sql`SELECT 1 FROM posts WHERE slug = ${slug}`;
+	return row !== undefined;
+}
+
+/** The bodies of posts published since `since`, so the generator can avoid repeating itself. */
+export async function recentBodies(sql: Sql, since: Date): Promise<string[]> {
+	const rows = await sql<{ body: string }[]>`SELECT body FROM posts WHERE published_at >= ${since}`;
+	return rows.map((row) => row.body);
+}
+
+export async function insertPost(sql: Sql, post: Post): Promise<void> {
+	await sql`
+		INSERT INTO posts (slug, title, description, body, tags, published_at)
+		VALUES (${post.slug}, ${post.title}, ${post.description}, ${post.body}, ${post.tags}, ${post.publishedAt})
+	`;
+}
+
 /** Rejects if the database can't be reached. Used by the readiness check. */
 export async function checkDatabase(sql: Sql): Promise<void> {
 	await sql`SELECT 1`;

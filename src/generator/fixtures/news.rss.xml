@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+	<channel>
+		<title>Example News</title>
+		<item>
+			<title><![CDATA[Chipmaker's shares jump &amp; rally]]></title>
+			<link>https://news.example.com/chip-rally</link>
+			<pubDate>Tue, 27 Oct 2026 09:00:00 +0000</pubDate>
+			<description><![CDATA[<p>Shares rose <strong>8%</strong> after the firm&#8217;s results.</p>]]></description>
+		</item>
+		<item>
+			<title>Older story from two days ago</title>
+			<link>https://news.example.com/old</link>
+			<pubDate>Sun, 25 Oct 2026 09:00:00 +0000</pubDate>
+			<description>Too old for today's brief.</description>
+		</item>
+		<item>
+			<title>Story with a broken date</title>
+			<link>https://news.example.com/no-date</link>
+			<pubDate>sometime soon</pubDate>
+		</item>
+	</channel>
+</rss>

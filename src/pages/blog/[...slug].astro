@@ -1,8 +1,8 @@
 ---
-import { marked } from 'marked';
 import { getSql } from '../../db/client';
 import { getPost } from '../../db/posts';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { renderMarkdown } from '../../utils/markdown';
 
 // Server mode: this page runs on every request, so a post added to the database shows up
 // without a rebuild.
@@ -13,7 +13,7 @@ if (!post) {
 	return new Response(null, { status: 404 });
 }
 
-const html = await marked.parse(post.body);
+const html = renderMarkdown(post.body);
 ---
 
 <BlogPost title={post.title} description={post.description} pubDate={post.publishedAt}>

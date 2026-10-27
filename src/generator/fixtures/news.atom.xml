@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="text">Example Atom Site</title>
+	<entry>
+		<title type="html">Phone maker admits screen fault</title>
+		<link rel="replies" href="https://atom.example.com/screen-fault#comments"/>
+		<link rel="alternate" href="https://atom.example.com/screen-fault"/>
+		<published>2026-10-27T08:00:00Z</published>
+		<summary type="html">&lt;p&gt;The company said a fix is coming.&lt;/p&gt;</summary>
+	</entry>
+	<entry>
+		<title>Same chip story, syndicated</title>
+		<link href="https://news.example.com/chip-rally"/>
+		<updated>2026-10-27T07:00:00Z</updated>
+		<summary>Carried by a second feed.</summary>
+	</entry>
+</feed>
