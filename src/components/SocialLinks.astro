@@ -45,10 +45,13 @@ const socials = [
 	}
 	.social-links a {
 		display: flex;
-		color: rgb(var(--gray));
+		color: var(--muted);
 		text-decoration: none;
+		transition: transform 0.2s;
 	}
 	.social-links a:hover {
-		color: var(--accent);
+		color: var(--ink);
+		background: none;
+		transform: translateY(-3px);
 	}
 </style>

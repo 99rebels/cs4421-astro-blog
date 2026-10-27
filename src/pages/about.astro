@@ -1,64 +1,201 @@
 ---
 import { Image } from 'astro:assets';
 import Logo from '../assets/logo.png';
-import Layout from '../layouts/BlogPost.astro';
+import Window from '../components/Window.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { PROJECTS } from '../projects';
+
+const steps = [
+	{ name: 'Ticket', text: 'Every change starts as a GitHub issue.' },
+	{ name: 'Branch and pull request', text: 'A short-lived branch, reviewed before it can merge.' },
+	{
+		name: 'Checks',
+		text: 'Lint, type checks, unit tests and database tests, then the Docker image is built and tested in a real browser.',
+	},
+	{
+		name: 'Deploy',
+		text: 'Merging builds the image, stores it in Amazon ECR and rolls it out on ECS. A version that fails its health checks is rolled back automatically.',
+	},
+	{ name: 'Smoke test', text: 'The pipeline asks the live site which commit it runs, and checks it is the one just deployed.' },
+	{
+		name: 'Daily brief',
+		text: 'Every morning a scheduled job reads news and podcast feeds, has Gemini write the post, and saves it to the database. It appears without a redeploy.',
+	},
+];
 ---
 
-<Layout
+<BaseLayout
 	title="About Me"
 	description="Rian O'Leary is a first-year Immersive Software Engineering student at UL who builds tools, is learning Java, and runs this site as a DevOps project."
-	pubDate={new Date('October 07 2026')}
+	width="wide"
 >
-	{/* Not the layout's heroImage: that slot is sized for wide 2:1 photos, and a square logo
-	    there renders around 1000px tall. */}
-	<Image src={Logo} alt="99rebels logo" width={200} class="logo" />
+	<Window path="~/about">
+		<p class="command terminal-only" aria-hidden="true">whoami</p>
+		<section class="intro">
+			<Image src={Logo} alt="99rebels logo" width={160} class="logo" />
+			<div>
+				<h1>About me</h1>
+				<p>
+					Hi, I'm Rian. I'm a first-year student on the Immersive Software Engineering (ISE) course
+					at the University of Limerick, and I'm currently learning to program in Java.
+				</p>
+				<p>I love solving problems, and making money from them is a bonus.</p>
+			</div>
+		</section>
 
-	<p>
-		Hi, I'm Rian. I'm a first-year student on the Immersive Software Engineering (ISE) course at
-		the University of Limerick, and I'm currently learning to program in Java.
-	</p>
+		<p class="command terminal-only" aria-hidden="true">ls -l ~/projects</p>
+		<section>
+			<h2>Things I've built</h2>
+			<ul class="projects">
+				{
+					PROJECTS.map((project) => (
+						<li>
+							<a href={project.url}>{project.name}</a> — {project.text}
+						</li>
+					))
+				}
+			</ul>
+			<p>There's more on <a href="https://github.com/99rebels">my GitHub</a>.</p>
+		</section>
 
-	<p>
-		This site is my project for CS4421, a DevOps module. The posts matter less than how the site
-		gets built and shipped: every change starts as a ticket, goes through a branch, a reviewed pull
-		request and automated checks, and is then deployed to AWS.
-	</p>
-
-	<p>I love solving problems, and making money from them is a bonus. A few things I've built:</p>
-
-	<ul>
-		<li>
-			<a href="https://github.com/99rebels/total-recall">Total Recall</a> — a study tool built on
-			active recall. You enter your notes and questions, and it brings them back after a day, a
-			week, a month and three months so they stick in long-term memory.
-		</li>
-		<li>
-			<a href="https://github.com/99rebels/headless-crm-skill">Headless CRM</a> — a CRM with no
-			interface of its own, driven by an AI agent instead.
-		</li>
-		<li>
-			<a href="https://github.com/99rebels/web-accessibility-audit">Web Accessibility Audit</a> — a
-			WCAG 2.1 AA audit with 20+ automated checks that produces client-ready reports, fix code
-			snippets and a remediation roadmap.
-		</li>
-		<li>
-			<a href="https://github.com/99rebels/aeo-toolkit">AEO Toolkit</a> — checks how visible a
-			website is to AI agents, from JavaScript rendering gaps to blocked AI crawlers, and generates
-			the files needed to fix it.
-		</li>
-		<li>
-			<a href="https://github.com/99rebels/webclient-studio">WebClient Studio</a> — an AI agent
-			skill bundle for freelance web designers: qualify leads, build proposals, onboard clients and
-			track the pipeline.
-		</li>
-	</ul>
-
-	<p>There's more on <a href="https://github.com/99rebels">my GitHub</a>.</p>
-</Layout>
+		<p class="command terminal-only" aria-hidden="true">cat how-this-site-ships.txt</p>
+		<section>
+			<h2>How this site ships</h2>
+			<p>
+				This site is my project for CS4421, a DevOps module. The posts matter less than how the site
+				gets built and shipped:
+			</p>
+			<ol class="steps">
+				{
+					steps.map((step) => (
+						<li>
+							<strong>{step.name}.</strong> {step.text}
+						</li>
+					))
+				}
+			</ol>
+			<p>
+				If something breaks in production an alarm emails me, and any tagged version can be rolled
+				back with one click.
+			</p>
+		</section>
+	</Window>
+</BaseLayout>
 
 <style>
+	section + section,
+	.command + section {
+		margin-top: var(--space-xl);
+	}
+	.intro {
+		display: flex;
+		gap: var(--space-lg);
+		align-items: center;
+	}
 	.logo {
+		flex: 0 0 auto;
+		width: 160px;
+	}
+	ul,
+	ol {
+		padding: 0;
+		list-style: none;
+	}
+
+	/* Classic: projects as a grid of sticker cards, the pipeline as numbered blobs. */
+	:global(:root:not([data-view='terminal'])) .logo {
+		border: 3px solid var(--border);
+		box-shadow: var(--shadow);
+	}
+	:global(:root:not([data-view='terminal'])) h1 {
+		text-shadow:
+			3px 3px 0 var(--accent-2),
+			6px 6px 0 var(--accent);
+	}
+	:global(:root:not([data-view='terminal'])) h2 {
+		padding-bottom: 0.35em;
+		background: var(--stripes) left bottom / 3.5em 0.3em no-repeat;
+	}
+	.projects {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
+		gap: var(--space-md);
+	}
+	:global(:root:not([data-view='terminal'])) .projects li {
+		padding: var(--space-sm) var(--space-md);
+		border-top-width: 10px;
+		font-size: 0.9em;
+		background: var(--card);
+		border: 3px solid var(--border);
+		border-radius: var(--radius);
+		box-shadow: var(--shadow);
+	}
+	:global(:root:not([data-view='terminal'])) .projects a {
+		font-weight: 700;
+		font-size: 1.1em;
+	}
+	.steps {
+		display: grid;
+		gap: var(--space-sm);
+		counter-reset: step;
+	}
+	.steps li {
+		position: relative;
+		padding-left: 3em;
+		counter-increment: step;
+	}
+	.steps li::before {
+		content: counter(step);
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: grid;
+		place-items: center;
+		width: 2em;
+		height: 2em;
+		color: var(--on-accent);
+		font-weight: 700;
+		background: var(--accent-2);
+		border: 2px solid var(--border);
+		border-radius: 50%;
+	}
+	.steps li:nth-child(3n + 2)::before {
+		background: var(--accent-3);
+	}
+	.steps li:nth-child(3n)::before {
+		background: var(--accent);
+	}
+
+	/* Terminal: plain text output. Projects read like ls -l rows, steps like [1] [2]. */
+	:global(:root[data-view='terminal']) .projects {
 		display: block;
-		margin: 0 auto var(--space-lg);
+	}
+	:global(:root[data-view='terminal']) .projects li {
+		margin-bottom: var(--space-xs);
+	}
+	:global(:root[data-view='terminal']) .projects li::before {
+		content: 'drwxr-xr-x  ' / '';
+		color: var(--muted);
+	}
+	:global(:root[data-view='terminal']) .steps li {
+		padding-left: 3.5em;
+	}
+	:global(:root[data-view='terminal']) .steps li::before {
+		content: '[' counter(step) ']';
+		width: auto;
+		height: auto;
+		color: var(--accent);
+		background: none;
+		border: none;
+	}
+	:global(:root[data-view='terminal']) h2::before {
+		content: '# ' / '';
+		color: var(--accent);
+	}
+	@media (max-width: 720px) {
+		.intro {
+			flex-direction: column;
+			align-items: flex-start;
+		}
 	}
 </style>

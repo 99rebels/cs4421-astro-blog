@@ -1,22 +1,42 @@
 /*
-  The CSS in this style tag is based off of Bear Blog's default CSS.
-  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
-  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
+  Two looks, each with a light and a dark theme. BaseLayout's inline script sets both on
+  <html> before the page paints: data-view ("classic" or "terminal") and data-theme
+  ("light" or "dark"). Everything below styles the same pages from those two attributes,
+  so switching the look never changes what a page says. Every text colour pair here was
+  checked for at least 4.5:1 contrast (WCAG AA).
  */
 
+/* Classic, light: a 1970s print look, and what visitors without JavaScript see. */
 :root {
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
-	--black: 15, 18, 25;
-	--gray: 96, 115, 159;
-	--gray-light: 229, 233, 240;
-	--gray-dark: 34, 41, 57;
-	/* Page, header and skip-link background. */
-	--surface: #fff;
-	--gray-gradient: rgba(var(--gray-light), 50%), var(--surface);
-	--box-shadow:
-		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
-		0 16px 32px rgba(var(--gray), 33%);
+	--bg: #f3e7cf;
+	--card: #fbf3e2;
+	--bar: #fbf3e2;
+	--ink: #3b2416;
+	--text: #4a3020;
+	--muted: #73553f;
+	--link: #a3401a;
+	--border: #3b2416;
+	/* Fills for chips and buttons. Text on them always uses --on-accent. */
+	--accent: #eb8a4a;
+	--accent-2: #e8b23a;
+	--accent-3: #7fb5a3;
+	--on-accent: #3b2416;
+	/* The sunset stripes. Red is only ever decoration, never behind text. */
+	--stripe-red: #c94a26;
+	--stripes: linear-gradient(
+		var(--stripe-red) 0 25%,
+		var(--accent) 25% 50%,
+		var(--accent-2) 50% 75%,
+		var(--accent-3) 75%
+	);
+	--shadow-colour: #3b2416;
+	--shadow: 4px 4px 0 var(--shadow-colour);
+	--radius: 10px;
+
+	--font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+	--font-body: var(--font-atkinson);
+	/* A chunky serif, like 70s print. System fonts only, so nothing extra to download. */
+	--font-heading: 'Iowan Old Style', 'Palatino Linotype', Georgia, ui-serif, serif;
 
 	/* Type scale: a 1.25 ratio ("major third"), so step n is 1.25 to the power n. */
 	--font-step-1: 1.25em;
@@ -26,137 +46,247 @@
 	--font-step-5: 3.052em;
 
 	/* Spacing. In em, so each value resolves against the font size where it is used. */
+	--space-xs: 0.5em;
 	--space-sm: 1em;
 	--space-md: 1.5em;
 	--space-lg: 2em;
 	--space-xl: 3em;
 
-	/* Width of the main reading column. */
 	--content-width: 720px;
 	--content-width-wide: 960px;
 }
-/* Dark theme: the same tokens with dark values. data-theme is set on <html> by the
-   inline script in BaseLayout before the page paints. The token names come from the
-   starter, so --black here is the strongest text colour, which is light in dark mode. */
+
+/* Classic, dark. */
 :root[data-theme='dark'] {
 	/* Also darkens the browser's own parts: scrollbars and form controls. */
 	color-scheme: dark;
-	--accent: #8c9bff;
-	--black: 236, 236, 236;
-	--gray: 150, 160, 185;
-	--gray-light: 45, 50, 62;
-	--gray-dark: 210, 214, 222;
-	--surface: #121212;
+	--bg: #22180f;
+	--card: #2e2117;
+	--bar: #2e2117;
+	--ink: #f6e7c9;
+	--text: #ead9bb;
+	--muted: #c0a684;
+	--link: #f3a65f;
+	--border: #f6e7c9;
+	--on-accent: #22180f;
+	--stripe-red: #e0623a;
+	--shadow-colour: #000;
 }
+
+/* Terminal, light: the cream terminal from the homepage, monospace everywhere. */
+:root[data-view='terminal'] {
+	--bg: #e9dfc6;
+	--card: #f4ecd8;
+	--bar: #e6dcc3;
+	--ink: #2b2620;
+	--text: #2b2620;
+	--muted: #6b5d45;
+	--link: #2b2620;
+	--border: #2b2620;
+	--accent: #8a5a00;
+	--accent-2: #8a5a00;
+	--accent-3: #8a5a00;
+	--on-accent: #f4ecd8;
+	--shadow-colour: #2b2620;
+	--shadow: 6px 6px 0 var(--shadow-colour);
+	--radius: 0;
+	--font-body: var(--font-mono);
+	--font-heading: var(--font-mono);
+}
+
+/* Terminal, dark. Listed last: it has to beat both rules above when both attributes match. */
+:root[data-view='terminal'][data-theme='dark'] {
+	--bg: #0b0b0b;
+	--card: #000;
+	--bar: #1a1a1a;
+	--ink: #e8e2d0;
+	--text: #e8e2d0;
+	--muted: #a39e90;
+	--link: #e8e2d0;
+	--border: #e8e2d0;
+	--accent: #e0a030;
+	--accent-2: #e0a030;
+	--accent-3: #e0a030;
+	--on-accent: #000;
+	--shadow-colour: #e8e2d0;
+}
+
+/* Each look has decorations the other doesn't: terminal prompts and title bars, classic
+   doodles. They're all marked aria-hidden, so screen readers get the same page in both. */
+:root:not([data-view='terminal']) .terminal-only,
+:root[data-view='terminal'] .classic-only {
+	display: none !important;
+}
+
 body {
-	font-family: var(--font-atkinson);
 	margin: 0;
 	padding: 0;
-	text-align: left;
-	background: linear-gradient(var(--gray-gradient)) no-repeat var(--surface);
-	background-size: 100% 600px;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	color: rgb(var(--gray-dark));
+	color: var(--text);
+	font-family: var(--font-body);
 	font-size: 20px;
 	line-height: 1.7;
+	background: var(--bg);
+	overflow-wrap: break-word;
 }
-main {
-	width: var(--content-width);
-	max-width: calc(100% - 2em);
-	margin: auto;
-	padding: var(--space-xl) var(--space-sm);
+/* Classic only: a faint halftone dot pattern, like old printed paper. */
+:root:not([data-view='terminal']) body {
+	background:
+		radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.5px) 0 0 / 14px 14px,
+		var(--bg);
 }
+:root[data-view='terminal'] body {
+	font-size: 17px;
+	line-height: 1.6;
+}
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-	margin: 0 0 0.5rem 0;
-	color: rgb(var(--black));
-	line-height: 1.2;
+	margin: 0 0 var(--space-xs);
+	color: var(--ink);
+	font-family: var(--font-heading);
+	line-height: 1.15;
 }
 h1 {
 	font-size: var(--font-step-5);
+	letter-spacing: -0.01em;
 }
 h2 {
-	font-size: var(--font-step-4);
-}
-h3 {
 	font-size: var(--font-step-3);
 }
-h4 {
+h3 {
 	font-size: var(--font-step-2);
 }
-h5 {
+h4 {
 	font-size: var(--font-step-1);
+}
+/* A terminal has one text size, so headings are bold lines rather than big type. */
+:root[data-view='terminal'] :is(h1, h2, h3, h4) {
+	font-size: 1em;
+	letter-spacing: 0;
+}
+:root[data-view='terminal'] h1 {
+	font-size: 1.2em;
+}
+
+p {
+	margin: 0 0 var(--space-sm);
 }
 strong,
 b {
 	font-weight: 700;
 }
+
 a {
-	color: var(--accent);
+	color: var(--link);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 0.2em;
 }
-a:hover {
-	color: var(--accent);
+:root:not([data-view='terminal']) a:hover {
+	text-decoration-thickness: 4px;
 }
+
+/* Classic: a band of sunset stripes, used as a divider and on top of cards. */
+.stripes {
+	height: 12px;
+	background: var(--stripes);
+}
+/* Terminal links are inverted on hover, like a selected line. */
+:root[data-view='terminal'] a:hover {
+	color: var(--card);
+	background: var(--ink);
+	text-decoration: none;
+}
+
 /* Browsers draw their own focus ring, but its look and contrast vary by browser. This gives
    every link and button the same one. :focus-visible shows it for keyboard focus, not clicks. */
 :focus-visible {
-	outline: 2px solid var(--accent);
-	outline-offset: 2px;
+	outline: 3px solid var(--link);
+	outline-offset: 3px;
 }
-p {
-	margin-bottom: var(--space-sm);
-}
-.prose p {
-	margin-bottom: var(--space-lg);
-}
-textarea {
-	width: 100%;
-	font-size: 16px;
-}
-input {
-	font-size: 16px;
-}
-table {
-	width: 100%;
-}
+
 img {
 	max-width: 100%;
 	height: auto;
-	border-radius: 8px;
+	border-radius: var(--radius);
 }
 code {
 	padding: 2px 5px;
-	background-color: rgb(var(--gray-light));
-	border-radius: 2px;
-}
-pre {
-	padding: var(--space-md);
-	border-radius: 8px;
-}
-pre > code {
-	all: unset;
-}
-blockquote {
-	border-left: 4px solid var(--accent);
-	padding: 0 0 0 20px;
-	margin: 0;
-	font-size: 1.333em;
+	font-family: var(--font-mono);
+	background: color-mix(in srgb, var(--ink) 10%, transparent);
+	border-radius: 4px;
 }
 hr {
 	border: none;
-	border-top: 1px solid rgb(var(--gray-light));
+	border-top: 2px dashed var(--muted);
 }
+blockquote {
+	margin: 0;
+	padding: 0 0 0 var(--space-sm);
+	border-left: 4px solid var(--accent);
+}
+
+/* A $ before decorative command lines. Lines with this class are aria-hidden. */
+.command::before {
+	content: '$ ';
+	color: var(--accent);
+}
+
+/* Tags. Classic: coloured stickers. Terminal: plain #tag text. */
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-xs);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 0.75em;
+}
+.tags li {
+	padding: 0.1em 0.7em;
+	color: var(--on-accent);
+	font-weight: 700;
+	background: var(--accent-2);
+	border: 2px solid var(--border);
+	border-radius: 999px;
+}
+.tags li:nth-child(3n + 2) {
+	background: var(--accent);
+}
+.tags li:nth-child(3n) {
+	background: var(--accent-3);
+}
+:root[data-view='terminal'] .tags li {
+	padding: 0;
+	color: var(--muted);
+	font-weight: 400;
+	background: none;
+	border: none;
+}
+:root[data-view='terminal'] .tags li::before {
+	content: '#';
+}
+
 @media (max-width: 720px) {
 	body {
 		font-size: 18px;
 	}
-	main {
-		padding: var(--space-sm);
+	:root[data-view='terminal'] body {
+		font-size: 15px;
+	}
+}
+
+/* Hover lifts and the hatch lid all move; people who ask their system for less motion
+   get the end state straight away. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition: none !important;
+		animation: none !important;
 	}
 }
 
@@ -168,12 +298,8 @@ hr {
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
-	clip: rect(1px 1px 1px 1px);
-	/* maybe deprecated but we need to support legacy browsers */
 	clip: rect(1px, 1px, 1px, 1px);
-	/* modern browsers, clip-path works inwards from each corner */
 	clip-path: inset(50%);
-	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
+	/* Stops words being run together when screen readers read across line breaks. */
 	white-space: nowrap;
 }

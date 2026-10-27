@@ -1,52 +1,86 @@
 ---
 import FormattedDate from '../components/FormattedDate.astro';
+import Window from '../components/Window.astro';
 import BaseLayout from './BaseLayout.astro';
 
-// Used by blog posts and by the About page, which isn't a post, so it only asks for what
-// both have.
 interface Props {
 	title: string;
 	description: string;
 	pubDate: Date;
+	/** The post's slug, shown as the file name in the terminal look. */
+	slug: string;
+	readingMinutes: number;
 }
 
-const { title, description, pubDate } = Astro.props;
+const { title, description, pubDate, slug, readingMinutes } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} width="full">
-	<article>
-		<div class="prose">
-			<div class="title">
-				<div class="date">
-					<FormattedDate date={pubDate} />
-				</div>
+<BaseLayout title={title} description={description}>
+	<Window path={`~/blog/${slug}.md`}>
+		<article>
+			<p class="command terminal-only" aria-hidden="true">cat {slug}.md</p>
+			<header>
 				<h1>{title}</h1>
-				<hr />
+				<p class="meta">
+					<FormattedDate date={pubDate} /> · {readingMinutes} min read
+				</p>
+			</header>
+			<div class="prose">
+				<slot />
 			</div>
-			<slot />
-		</div>
-	</article>
+			<p class="back"><a href="/blog/">← All posts</a></p>
+		</article>
+	</Window>
 </BaseLayout>
 
 <style>
-	.prose {
-		width: var(--content-width);
-		max-width: calc(100% - 2em);
-		margin: auto;
-		padding: 1em;
-		color: rgb(var(--gray-dark));
+	header {
+		margin-bottom: var(--space-lg);
+		padding-bottom: var(--space-md);
+		border-bottom: 3px double var(--border);
 	}
-	.title {
-		margin-bottom: 1em;
-		padding: 1em 0;
-		text-align: center;
-		line-height: 1;
+	.meta {
+		margin: 0;
+		color: var(--muted);
 	}
-	.title h1 {
-		margin: 0 0 0.5em 0;
+	.back {
+		margin-top: var(--space-xl);
 	}
-	.date {
-		margin-bottom: 0.5em;
-		color: rgb(var(--gray));
+
+	/* Post bodies come from Markdown, so their elements are styled with :global. */
+	/* In rem, not em: an em margin would scale with the heading's own large font size. */
+	.prose :global(h2) {
+		margin-top: 2.5rem;
+	}
+	.prose :global(h3) {
+		margin-top: 1.5rem;
+	}
+	.prose :global(p),
+	.prose :global(ul) {
+		margin-bottom: var(--space-md);
+	}
+
+	/* Classic: each topic heading gets a short bar of sunset stripes underneath. The bar
+	   sits below the text rather than behind it, so it never lowers the contrast. */
+	:global(:root:not([data-view='terminal'])) .prose :global(h2) {
+		padding-bottom: 0.35em;
+		background: var(--stripes) left bottom / 3.5em 0.3em no-repeat;
+	}
+	:global(:root:not([data-view='terminal'])) h1 {
+		text-shadow: 3px 3px 0 var(--accent-2);
+	}
+
+	/* Terminal: Markdown heading marks stay visible, like reading the raw file. */
+	:global(:root[data-view='terminal']) .prose :global(h2::before) {
+		content: '## ' / '';
+		color: var(--accent);
+	}
+	:global(:root[data-view='terminal']) .prose :global(h3::before) {
+		content: '### ' / '';
+		color: var(--accent);
+	}
+	:global(:root[data-view='terminal']) .prose :global(li::marker) {
+		content: '- ';
+		color: var(--accent);
 	}
 </style>

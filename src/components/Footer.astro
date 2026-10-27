@@ -5,21 +5,151 @@ const today = new Date();
 ---
 
 <footer>
-	&copy; {today.getFullYear()} Rian O'Leary. All rights reserved.
 	<div class="footer-socials">
 		<SocialLinks />
 	</div>
+	<p>&copy; {today.getFullYear()} Rian O'Leary</p>
+	{/* The secret switch to the terminal look. In the classic look it's a hatch whose lid
+	    opens on hover or keyboard focus; in the terminal look it's a plain "$ exit" back.
+	    Hidden until the script runs, like the theme toggle. */}
+	<div class="hatch">
+		{/* The clue. Purely visual; the button's own label says what it does. */}
+		<p class="clue classic-only" aria-hidden="true">do not open <span>→</span></p>
+		<button type="button" class="view-toggle" hidden>
+			<span class="hatch-inside classic-only" aria-hidden="true">&gt;_</span>
+			<span class="terminal-only" aria-hidden="true">$ exit</span>
+		</button>
+	</div>
 </footer>
+
+<script>
+	const button = document.querySelector<HTMLButtonElement>('.view-toggle')!;
+	const root = document.documentElement;
+
+	function nextView() {
+		return root.dataset.view === 'terminal' ? 'classic' : 'terminal';
+	}
+
+	function updateLabel() {
+		button.setAttribute('aria-label', `Switch to ${nextView()} look`);
+	}
+
+	button.addEventListener('click', () => {
+		const view = nextView();
+		root.dataset.view = view;
+		try {
+			localStorage.setItem('view', view);
+		} catch {
+			// Storage is blocked: the switch still works, it just won't be remembered.
+		}
+		updateLabel();
+	});
+
+	updateLabel();
+	button.hidden = false;
+</script>
+
 <style>
 	footer {
-		padding: 2em 1em 6em 1em;
-		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		color: rgb(var(--gray));
-		text-align: center;
-	}
-	.footer-socials {
 		display: flex;
-		justify-content: center;
-		margin-top: 1em;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-sm);
+		padding: var(--space-lg) 1em var(--space-xl);
+		color: var(--muted);
+		text-align: center;
+		border-top: 3px solid var(--border);
+	}
+	.hatch {
+		display: flex;
+		gap: 0.8em;
+		align-items: center;
+	}
+	/* A rubber stamp: red, uppercase, slightly crooked. */
+	.clue {
+		padding: 0.1em 0.5em;
+		color: var(--link);
+		font: 700 0.65em var(--font-mono);
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		border: 2px solid currentColor;
+		border-radius: 4px;
+		transform: rotate(-4deg);
+	}
+	/* Hidden until the button is, so the stamp never points at nothing. */
+	.hatch:has(.view-toggle[hidden]) .clue {
+		display: none;
+	}
+	footer p {
+		margin: 0;
+	}
+	/* Classic: a small square hatch. The lid is the button's own ::before, so hovering or
+	   focusing anywhere on it opens the lid, and the click always lands on the button. */
+	.view-toggle {
+		position: relative;
+		width: 2.6em;
+		height: 2.6em;
+		padding: 0;
+		color: #7cff9b;
+		font: 700 0.8em var(--font-mono);
+		background: #111;
+		border: 2px solid var(--border);
+		border-radius: 6px;
+		cursor: pointer;
+	}
+	.view-toggle::before {
+		content: '';
+		position: absolute;
+		inset: -2px;
+		/* Hazard stripes: a hint that this isn't for pressing. */
+		background: repeating-linear-gradient(-45deg, var(--accent-2) 0 6px, #3b2416 6px 12px);
+		border: 2px solid var(--border);
+		border-radius: 6px;
+		transform-origin: top left;
+		transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.6, 1);
+		/* Every few seconds the lid rattles, as if something's inside. */
+		animation: rattle 6s ease-in-out 2s infinite;
+	}
+	.view-toggle:hover::before,
+	.view-toggle:focus-visible::before {
+		animation: none;
+		transform: rotate(-115deg);
+	}
+	@keyframes rattle {
+		0%,
+		90%,
+		100% {
+			transform: rotate(0);
+		}
+		92% {
+			transform: rotate(-8deg);
+		}
+		94% {
+			transform: rotate(6deg);
+		}
+		96% {
+			transform: rotate(-4deg);
+		}
+		98% {
+			transform: rotate(2deg);
+		}
+	}
+	/* Terminal: no hatch, just an obvious way back. */
+	:global(:root[data-view='terminal']) .view-toggle {
+		width: auto;
+		height: auto;
+		padding: 0.1em 0.6em;
+		color: var(--ink);
+		font: inherit;
+		background: none;
+		border: 2px solid var(--border);
+		border-radius: 0;
+	}
+	:global(:root[data-view='terminal']) .view-toggle::before {
+		content: none;
+	}
+	:global(:root[data-view='terminal']) .view-toggle:hover {
+		color: var(--card);
+		background: var(--ink);
 	}
 </style>

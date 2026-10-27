@@ -19,10 +19,35 @@ const isActive = isCurrentPage(href, Astro.url.pathname);
 <style>
 	a {
 		display: inline-block;
+		padding: 0.2em 0.7em;
+		color: var(--ink);
+		font-weight: 700;
 		text-decoration: none;
+		border: 2px solid transparent;
+		border-radius: 999px;
+	}
+	/* Classic: links are pills, and the current page's pill is filled in. */
+	a:hover {
+		border-color: var(--border);
 	}
 	a.active {
-		font-weight: bolder;
-		text-decoration: underline;
+		color: var(--on-accent);
+		background: var(--accent-2);
+		border-color: var(--border);
+	}
+	/* Terminal: links read like folders (home/ blog/ about/), current one inverted. */
+	:global(:root[data-view='terminal']) a {
+		padding: 0 0.3em;
+		font-weight: 400;
+		text-transform: lowercase;
+		border: none;
+		border-radius: 0;
+	}
+	:global(:root[data-view='terminal']) a::after {
+		content: '/';
+	}
+	:global(:root[data-view='terminal']) a.active {
+		color: var(--card);
+		background: var(--ink);
 	}
 </style>

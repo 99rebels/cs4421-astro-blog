@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { resolveTheme } from '../utils/theme';
+import { resolveView } from '../utils/view';
 
 interface Props {
 	title: string;
@@ -14,18 +15,21 @@ interface Props {
 
 const { title, description, width = 'default' } = Astro.props;
 
-// The theme must be set before the page first paints, or a visitor who chose dark sees
-// a flash of light first. Bundled scripts are deferred until after the page is parsed,
+// The theme and the look (classic or terminal) must be set before the page first paints,
+// or a visitor sees a flash of the wrong one first. Bundled scripts are deferred until after the page is parsed,
 // so this has to be an inline script. Inline scripts can't import, so the tested
-// resolveTheme is pasted in as source text. localStorage throws when the browser blocks
-// storage, so a failed read counts as "nothing stored".
+// resolveTheme and resolveView are pasted in as source text. localStorage throws when the
+// browser blocks storage, so a failed read counts as "nothing stored".
 const themeScript = `
-	let stored = null;
+	let storedTheme = null;
+	let storedView = null;
 	try {
-		stored = localStorage.getItem('theme');
+		storedTheme = localStorage.getItem('theme');
+		storedView = localStorage.getItem('view');
 	} catch {}
 	const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
-	document.documentElement.dataset.theme = (${resolveTheme.toString()})(stored, prefersDark);
+	document.documentElement.dataset.theme = (${resolveTheme.toString()})(storedTheme, prefersDark);
+	document.documentElement.dataset.view = (${resolveView.toString()})(storedView);
 `;
 ---
 
@@ -58,7 +62,9 @@ const themeScript = `
 		top: -10em;
 		left: var(--space-sm);
 		padding: 0.5em 1em;
-		background: var(--surface);
+		color: var(--ink);
+		background: var(--card);
+		border: 2px solid var(--border);
 	}
 	.skip-link:focus {
 		top: var(--space-sm);
@@ -68,6 +74,12 @@ const themeScript = `
 	main:focus {
 		outline: none;
 	}
+	main {
+		width: var(--content-width);
+		max-width: calc(100% - 2em);
+		margin: auto;
+		padding: var(--space-xl) var(--space-sm);
+	}
 	main.wide {
 		width: var(--content-width-wide);
 	}
@@ -75,5 +87,10 @@ const themeScript = `
 		width: calc(100% - 2em);
 		max-width: 100%;
 		margin: 0;
+	}
+	@media (max-width: 720px) {
+		main {
+			padding: var(--space-md) var(--space-xs);
+		}
 	}
 </style>

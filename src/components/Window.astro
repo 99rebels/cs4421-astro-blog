@@ -1,0 +1,43 @@
+---
+interface Props {
+	/** Shown in the terminal title bar, e.g. "~/blog". */
+	path: string;
+}
+
+const { path } = Astro.props;
+---
+
+{/* In the terminal look this is a window with a title bar; in the classic look it's just a
+    container, so each page's own classic design shows through. */}
+<section class="window">
+	<p class="title-bar terminal-only" aria-hidden="true">● ● ● &nbsp;rian@ul: {path}</p>
+	<div class="screen">
+		<slot />
+	</div>
+</section>
+
+<style>
+	:global(:root[data-view='terminal']) .window {
+		color: var(--text);
+		background: var(--card);
+		border: 2px solid var(--border);
+		box-shadow: var(--shadow);
+	}
+	.title-bar {
+		margin: 0;
+		padding: 0.25em var(--space-sm);
+		background: var(--bar);
+		border-bottom: 2px solid var(--border);
+		font-size: 0.8em;
+	}
+	:global(:root[data-view='terminal']) .screen {
+		padding: var(--space-md) var(--space-sm);
+	}
+	/* A small gap above each command, so a session reads as separate steps. */
+	.screen :global(.command:not(:first-child)) {
+		margin-top: var(--space-md);
+	}
+	.screen :global(.command) {
+		margin-bottom: 0;
+	}
+</style>
