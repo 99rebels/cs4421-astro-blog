@@ -14,13 +14,15 @@
     "lint": "eslint .",
     "test:unit": "vitest run --dir src --exclude '**/*.integration.test.ts'",
     "test:integration": "vitest run --dir src integration",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "generate": "node src/generator/generate.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.2",
     "@astrojs/node": "^11.1.7",
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.5",
+    "fast-xml-parser": "^5.11.2",
     "jiti": "^2.7.0",
     "marked": "^18.1.1",
     "postgres": "^3.4.9",
