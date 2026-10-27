@@ -1,0 +1,11 @@
+{
+	"resultCount": 6,
+	"results": [
+		{ "collectionId": 1, "collectionName": "Founders Weekly", "artistName": "Jane Doe", "feedUrl": "https://feeds.example.com/founders", "collectionViewUrl": "https://podcasts.apple.com/podcast/id1", "trackCount": 120, "releaseDate": "2026-10-25T10:00:00Z", "primaryGenreName": "Entrepreneurship" },
+		{ "collectionId": 2, "collectionName": "Prof G Markets", "artistName": "ferty", "feedUrl": "https://copycat.example.com/feed", "collectionViewUrl": "https://podcasts.apple.com/podcast/id2", "trackCount": 300, "releaseDate": "2026-10-26T10:00:00Z", "primaryGenreName": "Investing" },
+		{ "collectionId": 3, "collectionName": "Two Episodes Only", "artistName": "New Show", "feedUrl": "https://feeds.example.com/tiny", "collectionViewUrl": "https://podcasts.apple.com/podcast/id3", "trackCount": 2, "releaseDate": "2026-10-26T10:00:00Z", "primaryGenreName": "Business" },
+		{ "collectionId": 4, "collectionName": "Gone Quiet", "artistName": "Old Show", "feedUrl": "https://feeds.example.com/quiet", "collectionViewUrl": "https://podcasts.apple.com/podcast/id4", "trackCount": 200, "releaseDate": "2025-01-01T10:00:00Z", "primaryGenreName": "Business" },
+		{ "collectionId": 5, "collectionName": "Market Movers", "artistName": "John Roe", "feedUrl": "https://feeds.example.com/movers", "collectionViewUrl": "https://podcasts.apple.com/podcast/id5", "trackCount": 80, "releaseDate": "2026-10-20T10:00:00Z", "primaryGenreName": "Investing" },
+		{ "collectionId": 6, "collectionName": "No Feed Show", "artistName": "Someone", "collectionViewUrl": "https://podcasts.apple.com/podcast/id6", "trackCount": 90, "releaseDate": "2026-10-26T10:00:00Z", "primaryGenreName": "Business" }
+	]
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+	<channel>
+		<title>Example Podcast</title>
+		<item>
+			<title>Episode 42: Building a company</title>
+			<pubDate>Tue, 27 Oct 2026 05:00:00 -0700</pubDate>
+			<guid isPermaLink="false"><![CDATA[a1b2c3]]></guid>
+			<description><![CDATA[A founder talks about the first ten hires.]]></description>
+			<enclosure url="https://audio.example.com/ep42.mp3" length="1" type="audio/mpeg"/>
+		</item>
+	</channel>
+</rss>
